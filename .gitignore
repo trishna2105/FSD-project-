@@ -1,11 +1,9 @@
-<<<<<<< HEAD
-*.pyc
-.venv/
-.vscode/
-=======
 /students.data
 /.students.data.*.tmp
 .venv/
 __pycache__/
 *.py[cod]
->>>>>>> origin/main
+/test_students.data__pycache__/
+*.pyc
+.venv/
+.vscode/
