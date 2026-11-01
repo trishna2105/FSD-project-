@@ -1,0 +1,5 @@
+/students.data
+/.students.data.*.tmp
+.venv/
+__pycache__/
+*.py[cod]

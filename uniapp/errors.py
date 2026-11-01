@@ -9,3 +9,15 @@ class ValidationError(ValueError):
         self.field = field
         self.reason = reason
         super().__init__(f"{field}: {reason}")
+
+
+class StorageError(OSError):
+    """The student data file could not be created, read or written."""
+
+
+class DuplicateStudentError(ValueError):
+    """A student ID or normalized email is already registered."""
+
+
+class StudentNotFoundError(LookupError):
+    """An update targeted a student ID that is not stored."""
