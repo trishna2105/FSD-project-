@@ -6,8 +6,10 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from uniapp.auth import AuthService
 from uniapp.database import DEFAULT_DATA_PATH, Database
 from uniapp.errors import (
+    AuthenticationError,
     DataFormatError,
     DuplicateStudentError,
     StorageError,
@@ -246,6 +248,84 @@ class DatabaseTests(unittest.TestCase):
             self.database.add_student(student)
         self.assertEqual(self.path.read_bytes(), before)
         self.assertEqual(list(self.path.parent.glob("*.tmp")), [])
+
+    def test_delete_preserves_other_student_and_all_nested_data(self):
+        first = self.make_student()
+        second = self.make_student("000002", "second@university.com")
+        self.database.add_student(first)
+        self.database.add_student(second)
+        self.database.delete_student(first.student_id)
+        restored = Database(self.path).read_all()
+        self.assertEqual([student.to_dict() for student in restored], [second.to_dict()])
+        auth = AuthService(self.database)
+        with self.assertRaises(AuthenticationError):
+            auth.login(first.email, first.password)
+        self.assertEqual(auth.login(second.email, second.password).student_id, second.student_id)
+
+    def test_delete_last_student_leaves_valid_empty_array(self):
+        self.database.add_student(self.make_student())
+        self.database.delete_student("000001")
+        self.assertEqual(json.loads(self.path.read_text()), [])
+        self.assertEqual(Database(self.path).read_all(), [])
+
+    def test_delete_missing_student_preserves_file(self):
+        self.database.add_student(self.make_student())
+        before = self.path.read_bytes()
+        with self.assertRaises(StudentNotFoundError):
+            self.database.delete_student("999999")
+        self.assertEqual(self.path.read_bytes(), before)
+
+    def test_clear_removes_all_students_and_preserves_file(self):
+        self.database.add_student(self.make_student())
+        self.database.add_student(self.make_student("000002", "second@university.com"))
+        self.database.clear()
+        self.assertTrue(self.path.is_file())
+        self.assertEqual(json.loads(self.path.read_text()), [])
+        self.assertEqual(Database(self.path).read_all(), [])
+        with self.assertRaises(AuthenticationError):
+            AuthService(self.database).login("second@university.com", "Hello123")
+
+    def test_clear_already_empty_database(self):
+        self.database.clear()
+        self.assertEqual(self.database.read_all(), [])
+
+    def test_delete_and_clear_reject_corrupt_files_without_resetting(self):
+        for text in ("", "not JSON", "{}", '[{"student_id":"000001"}]'):
+            self.path.write_text(text, encoding="utf-8")
+            before = self.path.read_bytes()
+            with self.assertRaises(DataFormatError):
+                self.database.delete_student("000001")
+            with self.assertRaises(DataFormatError):
+                self.database.clear()
+            self.assertEqual(self.path.read_bytes(), before)
+
+    def test_delete_and_clear_do_not_recreate_missing_file(self):
+        self.path.unlink()
+        with self.assertRaises(StorageError):
+            self.database.delete_student("000001")
+        with self.assertRaises(StorageError):
+            self.database.clear()
+        self.assertFalse(self.path.exists())
+
+    def test_delete_and_clear_preserve_original_on_replace_failure(self):
+        self.database.add_student(self.make_student())
+        before = self.path.read_bytes()
+        with patch("uniapp.database.os.replace", side_effect=PermissionError("denied")):
+            with self.assertRaises(StorageError):
+                self.database.delete_student("000001")
+            with self.assertRaises(StorageError):
+                self.database.clear()
+        self.assertEqual(self.path.read_bytes(), before)
+        self.assertEqual(list(self.path.parent.glob("*.tmp")), [])
+
+    def test_delete_and_clear_propagate_read_errors(self):
+        before = self.path.read_bytes()
+        with patch.object(Path, "read_text", side_effect=PermissionError("denied")):
+            with self.assertRaises(StorageError):
+                self.database.delete_student("000001")
+            with self.assertRaises(StorageError):
+                self.database.clear()
+        self.assertEqual(self.path.read_bytes(), before)
 
     def test_default_path_is_project_relative_not_working_directory(self):
         expected = Path(__file__).resolve().parent.parent / "students.data"

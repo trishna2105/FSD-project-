@@ -112,6 +112,20 @@ class Database:
         students[index] = student
         self._write_all(students)
 
+    def delete_student(self, student_id: str) -> None:
+        students = self.read_all()
+        for position, student in enumerate(students):
+            if student.student_id == student_id:
+                del students[position]
+                self._write_all(students)
+                return
+        raise StudentNotFoundError("Student ID does not exist")
+
+    def clear(self) -> None:
+        """Call only after UI confirmation; do not use to repair corrupt data."""
+        self.read_all()
+        self._write_all([])
+
     def _validate_students(self, students: list[Student]) -> None:
         student_ids = set()
         emails = set()
