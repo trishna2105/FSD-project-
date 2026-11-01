@@ -10,6 +10,7 @@ class EnrolmentWindow(QWidget):
     back_requested = Signal()
     enrolment_requested = Signal(str)
     subjects_requested = Signal()
+    drop_requested = Signal(str)
 
     def __init__(self):
         super().__init__()
@@ -68,6 +69,10 @@ class EnrolmentWindow(QWidget):
 
         input_row.addWidget(self.subject_input)
         input_row.addWidget(add_button)
+        drop_button = QPushButton("Drop Subject")
+        drop_button.setFixedWidth(180)
+        drop_button.clicked.connect(self.request_drop)
+        input_row.addWidget(drop_button)
         main.addLayout(input_row)
 
         # Enrolled subject list
@@ -91,6 +96,7 @@ class EnrolmentWindow(QWidget):
         )
 
         self.subject_list = QListWidget()
+        self.subject_list.itemClicked.connect(self.select_subject)
         self.subject_list.setStyleSheet("""
             QListWidget {
                 background-color: #263448;
@@ -99,7 +105,7 @@ class EnrolmentWindow(QWidget):
                 padding: 10px;
             }
             QListWidget::item {
-                padding: 12px;
+                padding: 6px 10px;
             }
         """)
 
@@ -133,3 +139,10 @@ class EnrolmentWindow(QWidget):
             f"Enrolled Subjects: {len(subjects)} / 4"
         )
         self.subject_input.clear()
+    def request_drop(self):
+        subject_id = self.subject_input.text().strip()
+        self.drop_requested.emit(subject_id)
+
+    def select_subject(self, item):
+        subject_id = item.text().replace("Subject ", "").strip()
+        self.subject_input.setText(subject_id)

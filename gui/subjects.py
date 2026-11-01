@@ -29,7 +29,7 @@ class SubjectsWindow(QWidget):
             "font-size: 32px; font-weight: 700;"
         )
 
-        back_button = QPushButton("Back to Dashboard")
+        back_button = QPushButton("Back to Enrolment")
         back_button.setFixedWidth(190)
         back_button.clicked.connect(self.back_requested.emit)
 
