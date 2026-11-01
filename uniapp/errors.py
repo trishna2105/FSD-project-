@@ -21,3 +21,11 @@ class DuplicateStudentError(ValueError):
 
 class StudentNotFoundError(LookupError):
     """An update targeted a student ID that is not stored."""
+
+
+class AuthenticationError(ValueError):
+    """The supplied credentials do not match a registered student."""
+
+
+class IDGenerationError(RuntimeError):
+    """No unused student ID was found within the retry limit."""
