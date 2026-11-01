@@ -1,4 +1,5 @@
-
+from uniapp.auth import AuthService
+from uniapp.errors import AuthenticationError, ValidationError
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -13,8 +14,9 @@ from PySide6.QtCore import Qt, Signal
 class LoginWindow(QWidget):
     login_success = Signal(str)
 
-    def __init__(self):
+    def __init__(self, auth_service):
         super().__init__()
+        self.auth_service = auth_service
 
         self.setWindowTitle("UniPortal | Login")
         self.resize(1100, 700)
@@ -68,28 +70,23 @@ class LoginWindow(QWidget):
         email = self.email.text().strip()
         password = self.password.text()
 
-        # Empty fields
         if not email or not password:
             QMessageBox.warning(
                 self,
                 "Login Error",
                 "Please enter your email and password."
-            )
+                )
             return
 
-        # Basic email validation (temporary)
-        if not email.endswith("@university.com"):
+        try:
+            student = self.auth_service.login(email, password)
+
+        except (AuthenticationError, ValidationError) as error:
             QMessageBox.warning(
                 self,
-                "Invalid Email",
-                "Please use your university email address."
-            )
+                "Login Failed",
+                str(error)
+                )
             return
 
-        # Temporary login validation
-        # Real authentication will be connected to students.data.
-        QMessageBox.information(
-            self,
-            "Login",
-            "Input validation passed. Authentication is not connected yet."
-        )
+        self.login_success.emit(student.student_id)

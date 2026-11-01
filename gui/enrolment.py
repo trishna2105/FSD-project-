@@ -9,6 +9,7 @@ from PySide6.QtCore import Qt, Signal
 class EnrolmentWindow(QWidget):
     back_requested = Signal()
     enrolment_requested = Signal(str)
+    subjects_requested = Signal()
 
     def __init__(self):
         super().__init__()
@@ -28,7 +29,7 @@ class EnrolmentWindow(QWidget):
             "font-size: 32px; font-weight: 700;"
         )
 
-        back_button = QPushButton("Back to Dashboard")
+        back_button = QPushButton("Log Out")
         back_button.setFixedWidth(190)
         back_button.clicked.connect(self.back_requested.emit)
 
@@ -84,6 +85,7 @@ class EnrolmentWindow(QWidget):
         card_layout.setSpacing(14)
 
         list_title = QLabel("My Enrolled Subjects")
+        list_title.setObjectName("sectionTitle")
         list_title.setStyleSheet(
             "font-size: 20px; font-weight: 600;"
         )
@@ -104,6 +106,18 @@ class EnrolmentWindow(QWidget):
         card_layout.addWidget(list_title)
         card_layout.addWidget(self.subject_list)
         main.addWidget(list_card, 1)
+
+         # View My Subjects button
+        subjects_button = QPushButton("View My Subjects")
+        subjects_button.setFixedWidth(220)
+        subjects_button.setMinimumHeight(48)
+        subjects_button.setCursor(Qt.PointingHandCursor)
+        subjects_button.clicked.connect(self.subjects_requested.emit)
+
+        main.addWidget(
+            subjects_button,
+            alignment=Qt.AlignRight
+        )
 
     def request_enrolment(self):
         subject_id = self.subject_input.text().strip()
