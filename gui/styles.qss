@@ -1,0 +1,105 @@
+
+/* GLOBAL */
+QWidget {
+    background-color: #202B3B;
+    color: #F8FAFC;
+    font-family: "Segoe UI";
+    font-size: 14px;
+}
+
+/* MAIN TITLE */
+QLabel#title {
+    font-size: 42px;
+    font-weight: 700;
+    color: #FFFFFF;
+    background: transparent;
+}
+
+/* LOGIN INPUTS */
+QLineEdit {
+    background-color: #344256;
+    border: 1px solid #526178;
+    border-radius: 12px;
+    padding: 15px 18px;
+    color: #F8FAFC;
+    font-size: 14px;
+    selection-background-color: #3B82F6;
+}
+
+QLineEdit:hover {
+    border: 1px solid #45618C;
+}
+
+QLineEdit:focus {
+    border: 2px solid #60A5FA;
+    background-color: #40516A;
+}
+
+/* LOGIN BUTTON */
+QPushButton {
+    background-color: #3469E8;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+QPushButton:hover {
+    background-color: #477CF5;
+}
+
+QPushButton:pressed {
+    background-color: #2455C5;
+}
+
+
+QPushButton#dangerButton {
+    background-color: #9F3545;
+    color: #FFFFFF;
+}
+
+QPushButton#dangerButton:hover {
+    background-color: #B84252;
+}
+
+QPushButton#dangerButton:pressed {
+    background-color: #842B39;
+}
+
+/* ERROR DIALOG */
+QDialog#errorDialog {
+    background-color: #202B3B;
+    border: 1px solid #526178;
+}
+
+QLabel#errorIcon {
+    background-color: #733342;
+    color: #FFD7DE;
+    border-radius: 23px;
+    font-size: 25px;
+    font-weight: 700;
+}
+
+QLabel#errorTitle {
+    background: transparent;
+    color: #FFFFFF;
+    font-size: 21px;
+    font-weight: 700;
+}
+
+QLabel#errorMessage {
+    background: transparent;
+    color: #B4C3D5;
+    font-size: 14px;
+}
+
+QLabel#sectionTitle {
+    background: transparent;
+    border: none;
+}
+
+QLabel {
+    background-color: transparent;
+}
