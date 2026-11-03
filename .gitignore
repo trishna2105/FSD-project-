@@ -4,3 +4,4 @@
 __pycache__/
 *.py[cod]
 /test_students.data
+.vscode/
